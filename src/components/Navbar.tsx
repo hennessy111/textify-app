@@ -1,14 +1,17 @@
 // Компонент навигации
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sparkles, History, Heart, Crown, LogIn, LogOut, Menu, X } from 'lucide-react';
+import { Sparkles, History, Heart, Crown, LogIn, LogOut, Menu, X, Settings, Sun, Moon, HelpCircle } from 'lucide-react';
 import { useAuth } from '../lib/auth';
+import { useTheme } from '../lib/theme';
 
 export function Navbar() {
   const { user, profile, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -17,6 +20,7 @@ export function Navbar() {
     { to: '/history', label: 'История', icon: History },
     { to: '/favorites', label: 'Избранное', icon: Heart },
     { to: '/pricing', label: 'Тарифы', icon: Crown },
+    { to: '/support', label: 'Поддержка', icon: HelpCircle },
   ];
 
   return (
@@ -48,7 +52,7 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* Auth кнопки */}
+          {/* Auth и настройки */}
           <div className="hidden md:flex items-center gap-2">
             {profile.is_premium && (
               <span className="flex items-center gap-1 px-2 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-medium">
@@ -56,18 +60,68 @@ export function Navbar() {
                 Premium
               </span>
             )}
-            {user ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">{user.email}</span>
-                <button
-                  onClick={logout}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  aria-label="Выйти"
-                >
-                  <LogOut className="w-4 h-4 text-gray-500" />
-                </button>
-              </div>
-            ) : (
+            
+            {/* Кнопка настроек */}
+            <div className="relative">
+              <button
+                onClick={() => setSettingsOpen(!settingsOpen)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Настройки"
+              >
+                <Settings className="w-5 h-5 text-gray-600" />
+              </button>
+
+              {/* Выпадающее меню настроек */}
+              {settingsOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-10" 
+                    onClick={() => setSettingsOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-20">
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-xs font-medium text-gray-500 uppercase">Настройки</p>
+                    </div>
+                    
+                    {/* Переключатель темы */}
+                    <button
+                      onClick={toggleTheme}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-left"
+                    >
+                      {theme === 'light' ? (
+                        <>
+                          <Moon className="w-4 h-4 text-gray-600" />
+                          <span className="text-sm text-gray-700">Темная тема</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sun className="w-4 h-4 text-gray-600" />
+                          <span className="text-sm text-gray-700">Светлая тема</span>
+                        </>
+                      )}
+                    </button>
+
+                    {user && (
+                      <div className="border-t border-gray-100 mt-2 pt-2">
+                        <div className="px-4 py-2">
+                          <p className="text-xs text-gray-500">Вы вошли как</p>
+                          <p className="text-sm font-medium text-gray-900 truncate">{user.email}</p>
+                        </div>
+                        <button
+                          onClick={logout}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-left text-red-600"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span className="text-sm">Выйти</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {!user && (
               <Link
                 to="/login"
                 className="flex items-center gap-1.5 px-3 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg text-sm font-medium hover:from-indigo-700 hover:to-purple-700 transition-all"
@@ -106,13 +160,31 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-2 pt-2 border-t border-gray-100">
+              {/* Переключатель темы */}
+              <button
+                onClick={() => { toggleTheme(); setMobileOpen(false); }}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 w-full"
+              >
+                {theme === 'light' ? (
+                  <>
+                    <Moon className="w-4 h-4" />
+                    Темная тема
+                  </>
+                ) : (
+                  <>
+                    <Sun className="w-4 h-4" />
+                    Светлая тема
+                  </>
+                )}
+              </button>
+
               {user ? (
                 <button
                   onClick={() => { logout(); setMobileOpen(false); }}
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 w-full"
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full"
                 >
                   <LogOut className="w-4 h-4" />
-                  Выйти ({user.email})
+                  Выйти
                 </button>
               ) : (
                 <Link

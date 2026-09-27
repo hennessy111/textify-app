@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, UserPlus, LogIn } from 'lucide-react';
+import { Mail, Lock, UserPlus, LogIn, Eye, EyeOff } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useAuth } from '../lib/auth';
 import toast from 'react-hot-toast';
@@ -14,6 +14,8 @@ interface AuthFormProps {
 export function AuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login, register: registerUser } = useAuth();
   const navigate = useNavigate();
@@ -26,8 +28,18 @@ export function AuthForm({ mode }: AuthFormProps) {
       return;
     }
 
+    if (!email.includes('@') || !email.includes('.')) {
+      toast.error('Введите корректный email');
+      return;
+    }
+
     if (password.length < 6) {
       toast.error('Пароль должен быть не менее 6 символов');
+      return;
+    }
+
+    if (mode === 'register' && password !== confirmPassword) {
+      toast.error('Пароли не совпадают');
       return;
     }
 
@@ -61,8 +73,8 @@ export function AuthForm({ mode }: AuthFormProps) {
             </h1>
             <p className="text-gray-500 mt-2">
               {mode === 'login' 
-                ? 'Войдите для доступа ко всем функциям' 
-                : 'Создайте аккаунт для 10 генераций в день'}
+                ? 'Войдите для 3 генераций в день' 
+                : 'Создайте аккаунт для 3 генераций в день'}
             </p>
           </div>
 
@@ -94,17 +106,47 @@ export function AuthForm({ mode }: AuthFormProps) {
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Минимум 6 символов"
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                  className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                   required
                   minLength={6}
                   aria-label="Пароль"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
+
+            {mode === 'register' && (
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  Подтвердите пароль
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    id="confirmPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Повторите пароль"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                    required
+                    minLength={6}
+                    aria-label="Подтверждение пароля"
+                  />
+                </div>
+              </div>
+            )}
 
             <Button type="submit" size="lg" isLoading={isLoading} className="w-full">
               {mode === 'login' ? 'Войти' : 'Зарегистрироваться'}
@@ -128,6 +170,15 @@ export function AuthForm({ mode }: AuthFormProps) {
               </p>
             )}
           </div>
+
+          {mode === 'register' && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+              <p className="text-xs text-blue-700">
+                <strong>Бонус регистрации:</strong> 3 генерации в день бесплатно!
+                Для безлимита подключите тариф Премиум.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

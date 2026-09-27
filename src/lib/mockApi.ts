@@ -12,6 +12,7 @@ const KEYS = {
   USER: 'seo_gen_user',
   PROFILE: 'seo_gen_profile',
   IP: 'seo_gen_ip',
+  USERS: 'seo_gen_users',
 };
 
 // Хелперы для работы с localStorage
@@ -58,12 +59,18 @@ function getIp(): string {
 
 // === AUTH ===
 
+interface StoredUser {
+  id: string;
+  email: string;
+  password: string;
+}
+
 export async function register(email: string, password: string): Promise<{ user: User; profile: Profile }> {
   await delay(800);
   
   // Проверяем, не зарегистрирован ли уже
-  const existingUsers = getStore<{ email: string; password: string; id: string }>('seo_gen_users');
-  if (existingUsers.find((u) => u.email === email)) {
+  const existingUsers = getStore<StoredUser>(KEYS.USERS);
+  if (existingUsers.find((u) => u.email.toLowerCase() === email.toLowerCase())) {
     throw new Error('Пользователь с таким email уже существует');
   }
 
@@ -72,8 +79,8 @@ export async function register(email: string, password: string): Promise<{ user:
   const profile: Profile = { id, is_premium: false, created_at: new Date().toISOString() };
 
   // Сохраняем пользователя
-  existingUsers.push({ email, password, id });
-  setStore('seo_gen_users', existingUsers);
+  existingUsers.push({ id, email, password });
+  setStore(KEYS.USERS, existingUsers);
   setObject(KEYS.USER, user);
   setObject(KEYS.PROFILE, profile);
 
@@ -83,15 +90,20 @@ export async function register(email: string, password: string): Promise<{ user:
 export async function login(email: string, password: string): Promise<{ user: User; profile: Profile }> {
   await delay(800);
 
-  const users = getStore<{ email: string; password: string; id: string }>('seo_gen_users');
-  const found = users.find((u) => u.email === email && u.password === password);
+  const users = getStore<StoredUser>(KEYS.USERS);
+  const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
   
   if (!found) {
     throw new Error('Неверный email или пароль');
   }
 
   const user: User = { id: found.id, email: found.email };
-  const profile = getObject<Profile>(KEYS.PROFILE) || { id: found.id, is_premium: false, created_at: new Date().toISOString() };
+  
+  // Загружаем или создаём профиль
+  let profile = getObject<Profile>(KEYS.PROFILE);
+  if (!profile || profile.id !== found.id) {
+    profile = { id: found.id, is_premium: false, created_at: new Date().toISOString() };
+  }
   
   setObject(KEYS.USER, user);
   setObject(KEYS.PROFILE, profile);
@@ -129,7 +141,7 @@ export async function generate(
 
   // Проверка лимита
   if (!canGenerate(generations, user?.id || null, ip, profile.is_premium)) {
-    return { success: false, error: 'Лимит генераций на сегодня исчерпан' };
+    return { success: false, error: 'Лимит генераций исчерпан' };
   }
 
   // Генерация описаний
@@ -265,8 +277,8 @@ export async function processPayment(email: string): Promise<void> {
   await delay(2000);
 
   // Находим пользователя по email
-  const users = getStore<{ email: string; password: string; id: string }>('seo_gen_users');
-  const found = users.find((u) => u.email === email);
+  const users = getStore<StoredUser>(KEYS.USERS);
+  const found = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
   
   if (!found) throw new Error('Пользователь не найден. Сначала зарегистрируйтесь.');
 

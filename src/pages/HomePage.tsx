@@ -147,6 +147,28 @@ export function HomePage() {
           <p className="text-sm text-gray-500">Wildberries, Ozon, Etsy</p>
         </div>
       </div>
+
+      {/* Информация о лимитах */}
+      <div className="mt-12 bg-white rounded-2xl p-6 border border-gray-100">
+        <h2 className="text-xl font-bold text-gray-900 text-center mb-4">Тарифные планы</h2>
+        <div className="grid sm:grid-cols-3 gap-4 text-center">
+          <div className="p-4">
+            <p className="text-sm font-medium text-gray-500 mb-1">Гость</p>
+            <p className="text-2xl font-bold text-gray-900">3</p>
+            <p className="text-xs text-gray-500">генерации всего</p>
+          </div>
+          <div className="p-4 border-x border-gray-100">
+            <p className="text-sm font-medium text-gray-500 mb-1">Пользователь</p>
+            <p className="text-2xl font-bold text-gray-900">3</p>
+            <p className="text-xs text-gray-500">генерации в день</p>
+          </div>
+          <div className="p-4">
+            <p className="text-sm font-medium text-indigo-600 mb-1">Премиум</p>
+            <p className="text-2xl font-bold text-indigo-600">∞</p>
+            <p className="text-xs text-gray-500">безлимит</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

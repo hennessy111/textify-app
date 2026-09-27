@@ -1,7 +1,7 @@
 // Компонент модалки оплаты
 
 import React, { useState } from 'react';
-import { CreditCard, Crown, Shield } from 'lucide-react';
+import { CreditCard, Crown, Shield, Calendar } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { Button } from './ui/Button';
 import { useAuth } from '../lib/auth';
@@ -15,8 +15,12 @@ interface PaymentModalProps {
 
 export function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
   const [email, setEmail] = useState('');
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
   const [isProcessing, setIsProcessing] = useState(false);
   const { refresh } = useAuth();
+
+  const price = billingPeriod === 'monthly' ? 200 : 1500;
+  const periodLabel = billingPeriod === 'monthly' ? 'месяц' : 'год';
 
   const handlePayment = async () => {
     if (!email) {
@@ -28,7 +32,7 @@ export function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
     try {
       await api.processPayment(email);
       await refresh();
-      toast.success('Оплата прошла успешно! Безлимит активирован 🎉');
+      toast.success(`Оплата прошла успешно! Премиум на ${periodLabel} активирован 🎉`);
       onClose();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Ошибка оплаты');
@@ -40,11 +44,35 @@ export function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Оформление подписки">
       <div className="space-y-6">
+        {/* Переключатель периода */}
+        <div className="flex items-center bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setBillingPeriod('monthly')}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+              billingPeriod === 'monthly'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Ежемесячно
+          </button>
+          <button
+            onClick={() => setBillingPeriod('yearly')}
+            className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+              billingPeriod === 'yearly'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            Ежегодно
+          </button>
+        </div>
+
         {/* Информация о тарифе */}
         <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-5 border border-indigo-100">
           <div className="flex items-center gap-3 mb-3">
             <Crown className="w-6 h-6 text-indigo-600" />
-            <h3 className="font-bold text-gray-900">Безлимит навсегда</h3>
+            <h3 className="font-bold text-gray-900">Премиум — {periodLabel}</h3>
           </div>
           <div className="space-y-2 text-sm text-gray-600">
             <p>✅ Неограниченные генерации</p>
@@ -53,9 +81,14 @@ export function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
             <p>✅ Приоритетная поддержка</p>
           </div>
           <div className="mt-4 flex items-baseline gap-1">
-            <span className="text-3xl font-bold text-gray-900">990 ₽</span>
-            <span className="text-gray-500">/ единоразово</span>
+            <span className="text-3xl font-bold text-gray-900">{price} ₽</span>
+            <span className="text-gray-500">/ {periodLabel}</span>
           </div>
+          {billingPeriod === 'yearly' && (
+            <p className="mt-2 text-xs text-green-600 font-medium">
+              💰 Экономия 900 ₽ по сравнению с ежемесячной оплатой
+            </p>
+          )}
         </div>
 
         {/* Email для привязки */}
@@ -85,7 +118,7 @@ export function PaymentModal({ isOpen, onClose }: PaymentModalProps) {
           className="w-full"
         >
           <CreditCard className="w-5 h-5 mr-2" />
-          {isProcessing ? 'Обработка...' : 'Оплатить картой'}
+          {isProcessing ? 'Обработка...' : `Оплатить ${price} ₽`}
         </Button>
 
         {/* Безопасность */}
