@@ -4,14 +4,6 @@ import axios from 'axios';
 import { PAYMENT_CONFIG, PRICING } from './paymentConfig';
 import type { PaymentType } from './paymentConfig';
 
-interface CreatePaymentRequest {
-  amount: number;
-  description: string;
-  email: string;
-  paymentType: PaymentType;
-  paymentMethod?: 'card' | 'yoomoney' | 'sbp';
-}
-
 interface CreatePaymentResponse {
   success: boolean;
   confirmation_url?: string;
@@ -21,22 +13,36 @@ interface CreatePaymentResponse {
 
 /**
  * Создание платежа через ЮKassa API
- * Требует серверную часть (см. yookassa-server-example.ts)
+ * Требует серверную часть (см. server/index.js)
  */
-export async function createPayment(data: CreatePaymentRequest): Promise<CreatePaymentResponse> {
+export async function createPayment(
+  amount: number,
+  description: string,
+  email: string,
+  paymentType: PaymentType,
+  paymentMethod?: 'card' | 'yoomoney' | 'sbp'
+): Promise<CreatePaymentResponse> {
   // В демо-режиме не делаем реальный запрос
   if (PAYMENT_CONFIG.provider === 'demo') {
     return { success: true, payment_id: 'demo-' + Date.now() };
   }
 
+  // Проверка конфигурации
+  if (!PAYMENT_CONFIG.apiUrl) {
+    return {
+      success: false,
+      error: 'URL сервера не настроен. Обновите paymentConfig.ts',
+    };
+  }
+
   try {
-    // Запрос к серверному API (который вы должны развернуть)
-    const response = await axios.post('/api/create-payment', {
-      amount: data.amount,
-      description: data.description,
-      email: data.email,
-      paymentType: data.paymentType,
-      paymentMethod: data.paymentMethod,
+    // Запрос к серверному API
+    const response = await axios.post(`${PAYMENT_CONFIG.apiUrl}/api/create-payment`, {
+      amount,
+      description,
+      email,
+      paymentType,
+      paymentMethod,
     });
 
     return {
@@ -61,8 +67,12 @@ export async function checkPaymentStatus(paymentId: string): Promise<{ status: s
     return { status: 'succeeded', amount: '0.00' };
   }
 
+  if (!PAYMENT_CONFIG.apiUrl) {
+    return null;
+  }
+
   try {
-    const response = await axios.get(`/api/payment-status/${paymentId}`);
+    const response = await axios.get(`${PAYMENT_CONFIG.apiUrl}/api/payment-status/${paymentId}`);
     return {
       status: response.data.status,
       amount: response.data.amount,

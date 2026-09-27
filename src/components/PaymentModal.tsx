@@ -55,13 +55,13 @@ export function PaymentModal({ isOpen, onClose, paymentType }: PaymentModalProps
     try {
       // Реальная интеграция с ЮKassa
       if (PAYMENT_CONFIG.provider === 'yookassa') {
-        const result = await createPayment({
-          amount: pricing.amount,
-          description: pricing.label,
+        const result = await createPayment(
+          pricing.amount,
+          pricing.label,
           email,
           paymentType,
-          paymentMethod,
-        });
+          paymentMethod
+        );
 
         if (result.success && result.confirmation_url) {
           // Перенаправляем пользователя на страницу оплаты ЮKassa

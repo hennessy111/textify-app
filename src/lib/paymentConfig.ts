@@ -2,24 +2,24 @@
 
 export interface PaymentConfig {
   provider: 'yookassa' | 'yoomoney' | 'demo';
+  apiUrl?: string; // URL сервера для API запросов
   shopId?: string;
   publicKey?: string;
   webhookUrl?: string;
 }
 
 // Конфигурация платёжной системы
-// Переключите provider на 'yookassa' после получения credentials
+// ВАЖНО: Замените apiUrl на URL вашего сервера после деплоя
 export const PAYMENT_CONFIG: PaymentConfig = {
   // Для продакшена:
-  provider: 'demo', // 'yookassa' | 'yoomoney' | 'demo'
+  provider: 'demo', // Измените на 'yookassa' после настройки сервера
   
-  // ЮKassa credentials (получите в личном кабинете)
+  // URL вашего сервера (Railway/Render/VPS)
+  // apiUrl: 'https://your-server.up.railway.app',
+  
+  // ЮKassa credentials (НЕ ХРАНИТЕ secretKey на фронтенде!)
   // shopId: 'ваш_shop_id',
-  // publicKey: 'ваш_public_key',
-  // webhookUrl: '/api/yookassa-webhook',
-  
-  // YooMoney (альтернатива для самозанятых)
-  // publicKey: 'ваш_yoomoney_public_key',
+  // webhookUrl: 'https://your-server.up.railway.app/api/yookassa-webhook',
 };
 
 // Тарифы
