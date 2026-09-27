@@ -7,7 +7,7 @@ import { DescriptionCard } from '../components/DescriptionCard';
 import { Card } from '../components/ui/Card';
 import { Spinner } from '../components/ui/Spinner';
 import { getPlatformLabel, getPlatformColor, formatDate } from '../lib/utils';
-import * as api from '../lib/mockApi';
+import * as api from '../lib/supabaseApi';
 import type { Generation } from '../types';
 
 export function GenerationPage() {

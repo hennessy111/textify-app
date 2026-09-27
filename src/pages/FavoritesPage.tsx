@@ -5,7 +5,7 @@ import { Heart } from 'lucide-react';
 import { FavoriteCard } from '../components/FavoriteCard';
 import { CardSkeleton } from '../components/ui/Skeleton';
 import { useAuth } from '../lib/auth';
-import * as api from '../lib/mockApi';
+import * as api from '../lib/supabaseApi';
 import type { Favorite, Generation } from '../types';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';

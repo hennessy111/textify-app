@@ -7,7 +7,7 @@ import { Button } from './ui/Button';
 import { formatDate, getPlatformLabel, getPlatformColor } from '../lib/utils';
 import { copyToClipboard } from '../lib/utils';
 import type { Generation } from '../types';
-import * as api from '../lib/mockApi';
+import * as api from '../lib/supabaseApi';
 import toast from 'react-hot-toast';
 
 interface HistoryListProps {

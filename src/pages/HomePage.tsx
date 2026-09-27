@@ -6,7 +6,7 @@ import { GenerationForm } from '../components/GenerationForm';
 import { DescriptionCard } from '../components/DescriptionCard';
 import { Card } from '../components/ui/Card';
 import { useAuth } from '../lib/auth';
-import * as api from '../lib/mockApi';
+import * as api from '../lib/supabaseApi';
 import type { Platform, Description } from '../types';
 import toast from 'react-hot-toast';
 

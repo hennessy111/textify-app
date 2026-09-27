@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { User, Profile } from '../types';
-import * as api from './mockApi';
+import * as api from './supabaseApi';
 
 interface AuthContextType {
   user: User | null;

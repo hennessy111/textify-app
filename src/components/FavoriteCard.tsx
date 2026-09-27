@@ -6,7 +6,7 @@ import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { formatDate, getPlatformLabel, getPlatformColor, copyToClipboard } from '../lib/utils';
 import type { Favorite, Generation } from '../types';
-import * as api from '../lib/mockApi';
+import * as api from '../lib/supabaseApi';
 import toast from 'react-hot-toast';
 
 interface FavoriteCardProps {

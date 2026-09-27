@@ -5,7 +5,7 @@ import { History as HistoryIcon, ChevronLeft, ChevronRight } from 'lucide-react'
 import { HistoryList } from '../components/HistoryList';
 import { CardSkeleton } from '../components/ui/Skeleton';
 import { Button } from '../components/ui/Button';
-import * as api from '../lib/mockApi';
+import * as api from '../lib/supabaseApi';
 import type { Generation, Platform } from '../types';
 
 export function HistoryPage() {

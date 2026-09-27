@@ -5,7 +5,7 @@ import { Copy, Check, Heart, Share2, HeartOff } from 'lucide-react';
 import { Button } from './ui/Button';
 import { copyToClipboard } from '../lib/utils';
 import toast from 'react-hot-toast';
-import * as api from '../lib/mockApi';
+import * as api from '../lib/supabaseApi';
 import { useAuth } from '../lib/auth';
 
 interface DescriptionCardProps {

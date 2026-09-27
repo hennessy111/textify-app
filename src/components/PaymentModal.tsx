@@ -7,7 +7,7 @@ import { Button } from './ui/Button';
 import { useAuth } from '../lib/auth';
 import { PAYMENT_CONFIG, PRICING } from '../lib/paymentConfig';
 import type { PaymentType } from '../lib/paymentConfig';
-import * as api from '../lib/mockApi';
+import * as api from '../lib/supabaseApi';
 import { createPayment } from '../lib/paymentService';
 import toast from 'react-hot-toast';
 
