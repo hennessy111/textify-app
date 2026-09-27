@@ -151,7 +151,7 @@ export function HomePage() {
       {/* Информация о лимитах */}
       <div className="mt-12 bg-white rounded-2xl p-6 border border-gray-100">
         <h2 className="text-xl font-bold text-gray-900 text-center mb-4">Тарифные планы</h2>
-        <div className="grid sm:grid-cols-3 gap-4 text-center">
+        <div className="grid sm:grid-cols-4 gap-4 text-center">
           <div className="p-4">
             <p className="text-sm font-medium text-gray-500 mb-1">Гость</p>
             <p className="text-2xl font-bold text-gray-900">3</p>
@@ -161,6 +161,11 @@ export function HomePage() {
             <p className="text-sm font-medium text-gray-500 mb-1">Пользователь</p>
             <p className="text-2xl font-bold text-gray-900">3</p>
             <p className="text-xs text-gray-500">генерации в день</p>
+          </div>
+          <div className="p-4 border-r border-gray-100">
+            <p className="text-sm font-medium text-purple-600 mb-1">Пакеты</p>
+            <p className="text-2xl font-bold text-purple-600">3-10</p>
+            <p className="text-xs text-gray-500">разово</p>
           </div>
           <div className="p-4">
             <p className="text-sm font-medium text-indigo-600 mb-1">Премиум</p>

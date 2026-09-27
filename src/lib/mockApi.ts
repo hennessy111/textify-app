@@ -3,7 +3,7 @@
 import type { Generation, Favorite, User, Profile, Platform } from '../types';
 import { generateId, getMockIp } from './utils';
 import { generateDescriptions } from './prompts';
-import { getRemaining, canGenerate } from './limits';
+import { getRemaining, canGenerate, AUTH_LIMIT, getTodayCount } from './limits';
 
 // Ключи localStorage
 const KEYS = {
@@ -76,7 +76,7 @@ export async function register(email: string, password: string): Promise<{ user:
 
   const id = generateId();
   const user: User = { id, email };
-  const profile: Profile = { id, is_premium: false, created_at: new Date().toISOString() };
+  const profile: Profile = { id, is_premium: false, balance: 0, created_at: new Date().toISOString() };
 
   // Сохраняем пользователя
   existingUsers.push({ id, email, password });
@@ -102,7 +102,7 @@ export async function login(email: string, password: string): Promise<{ user: Us
   // Загружаем или создаём профиль
   let profile = getObject<Profile>(KEYS.PROFILE);
   if (!profile || profile.id !== found.id) {
-    profile = { id: found.id, is_premium: false, created_at: new Date().toISOString() };
+    profile = { id: found.id, is_premium: false, balance: 0, created_at: new Date().toISOString() };
   }
   
   setObject(KEYS.USER, user);
@@ -122,7 +122,7 @@ export function getCurrentUser(): User | null {
 }
 
 export function getCurrentProfile(): Profile {
-  return getObject<Profile>(KEYS.PROFILE) || { id: '', is_premium: false, created_at: '' };
+  return getObject<Profile>(KEYS.PROFILE) || { id: '', is_premium: false, balance: 0, created_at: '' };
 }
 
 // === GENERATE ===
@@ -140,7 +140,7 @@ export async function generate(
   const generations = getStore<Generation>(KEYS.GENERATIONS);
 
   // Проверка лимита
-  if (!canGenerate(generations, user?.id || null, ip, profile.is_premium)) {
+  if (!canGenerate(generations, user?.id || null, ip, profile.is_premium, profile.balance)) {
     return { success: false, error: 'Лимит генераций исчерпан' };
   }
 
@@ -163,7 +163,16 @@ export async function generate(
   generations.unshift(generation);
   setStore(KEYS.GENERATIONS, generations);
 
-  const remaining = getRemaining(generations, user?.id || null, ip, profile.is_premium);
+  // Если исчерпан дневной лимит и есть баланс — списываем из баланса
+  if (user) {
+    const dailyCount = getTodayCount(generations, user.id, ip);
+    if (dailyCount > AUTH_LIMIT && profile.balance > 0) {
+      profile.balance -= 1;
+      setObject(KEYS.PROFILE, profile);
+    }
+  }
+
+  const remaining = getRemaining(generations, user?.id || null, ip, profile.is_premium, profile.balance);
 
   return {
     success: true,
@@ -273,7 +282,23 @@ export async function deleteGeneration(id: string): Promise<void> {
 
 // === PAYMENT ===
 
-export async function processPayment(email: string): Promise<void> {
+export type PaymentType = 'premium_monthly' | 'premium_yearly' | 'pack_3' | 'pack_5' | 'pack_10';
+
+export interface PaymentInfo {
+  type: PaymentType;
+  amount: number;
+  label: string;
+}
+
+export const PAYMENT_OPTIONS: Record<PaymentType, PaymentInfo> = {
+  premium_monthly: { type: 'premium_monthly', amount: 200, label: 'Премиум на 1 месяц' },
+  premium_yearly: { type: 'premium_yearly', amount: 1500, label: 'Премиум на 1 год' },
+  pack_3: { type: 'pack_3', amount: 100, label: 'Пакет 3 генерации' },
+  pack_5: { type: 'pack_5', amount: 150, label: 'Пакет 5 генераций' },
+  pack_10: { type: 'pack_10', amount: 200, label: 'Пакет 10 генераций' },
+};
+
+export async function processPayment(email: string, paymentType: PaymentType): Promise<void> {
   await delay(2000);
 
   // Находим пользователя по email
@@ -285,14 +310,22 @@ export async function processPayment(email: string): Promise<void> {
   // Обновляем профиль
   const profile = getObject<Profile>(KEYS.PROFILE);
   if (profile && profile.id === found.id) {
-    profile.is_premium = true;
+    if (paymentType === 'premium_monthly' || paymentType === 'premium_yearly') {
+      profile.is_premium = true;
+    } else if (paymentType === 'pack_3') {
+      profile.balance += 3;
+    } else if (paymentType === 'pack_5') {
+      profile.balance += 5;
+    } else if (paymentType === 'pack_10') {
+      profile.balance += 10;
+    }
     setObject(KEYS.PROFILE, profile);
   }
 }
 
 // === ME ===
 
-export async function getMe(): Promise<{ user: User | null; profile: { is_premium: boolean }; remaining: number }> {
+export async function getMe(): Promise<{ user: User | null; profile: { is_premium: boolean; balance: number }; remaining: number }> {
   await delay(200);
 
   const user = getCurrentUser();
@@ -300,11 +333,11 @@ export async function getMe(): Promise<{ user: User | null; profile: { is_premiu
   const ip = getIp();
   const generations = getStore<Generation>(KEYS.GENERATIONS);
 
-  const remaining = getRemaining(generations, user?.id || null, ip, profile.is_premium);
+  const remaining = getRemaining(generations, user?.id || null, ip, profile.is_premium, profile.balance);
 
   return {
     user,
-    profile: { is_premium: profile.is_premium },
+    profile: { is_premium: profile.is_premium, balance: profile.balance },
     remaining,
   };
 }

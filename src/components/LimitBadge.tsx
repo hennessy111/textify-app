@@ -1,6 +1,6 @@
 // Компонент бейджа лимита
 
-import { Crown, Zap, AlertCircle } from 'lucide-react';
+import { Crown, Zap, AlertCircle, Coins } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 
@@ -10,7 +10,7 @@ interface LimitBadgeProps {
 }
 
 export function LimitBadge({ remaining, isPremium }: LimitBadgeProps) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   if (isPremium) {
     return (
@@ -33,7 +33,7 @@ export function LimitBadge({ remaining, isPremium }: LimitBadgeProps) {
           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg text-sm font-medium hover:from-indigo-700 hover:to-purple-700 transition-all"
         >
           <Zap className="w-3.5 h-3.5" />
-          Подключить Премиум от 200 ₽
+          Купить генерации
         </Link>
       </div>
     );
@@ -51,12 +51,23 @@ export function LimitBadge({ remaining, isPremium }: LimitBadgeProps) {
     );
   }
 
+  // Для авторизованных показываем баланс отдельно
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-xl">
-      <Zap className="w-4 h-4 text-indigo-600" />
-      <span className="text-sm font-medium text-indigo-700">
-        Осталось <span className="font-bold">{remaining}</span> генераций сегодня
-      </span>
+    <div className="flex flex-col sm:flex-row gap-2">
+      <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-xl">
+        <Zap className="w-4 h-4 text-indigo-600" />
+        <span className="text-sm font-medium text-indigo-700">
+          Осталось <span className="font-bold">{remaining}</span> генераций
+        </span>
+      </div>
+      {profile.balance > 0 && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-100 rounded-xl">
+          <Coins className="w-4 h-4 text-purple-600" />
+          <span className="text-sm font-medium text-purple-700">
+            Баланс: <span className="font-bold">{profile.balance}</span> генераций
+          </span>
+        </div>
+      )}
     </div>
   );
 }

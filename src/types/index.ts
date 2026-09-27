@@ -29,6 +29,7 @@ export interface Favorite {
 export interface Profile {
   id: string;
   is_premium: boolean;
+  balance: number; // Количество купленных разовых генераций
   created_at: string;
 }
 

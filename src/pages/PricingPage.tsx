@@ -1,17 +1,24 @@
 // Страница тарифов
 
 import React, { useState } from 'react';
-import { Crown, Check, Zap, Users, Sparkles, Calendar } from 'lucide-react';
+import { Crown, Check, Zap, Users, Sparkles, Calendar, Package } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { PaymentModal } from '../components/PaymentModal';
 import { useAuth } from '../lib/auth';
 import { Link } from 'react-router-dom';
+import type { PaymentType } from '../lib/mockApi';
 
 export function PricingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentType>('premium_monthly');
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
   const { profile, user } = useAuth();
+
+  const handleOpenPayment = (type: PaymentType) => {
+    setSelectedPayment(type);
+    setIsModalOpen(true);
+  };
 
   const plans = [
     {
@@ -67,6 +74,12 @@ export function PricingPage() {
     },
   ];
 
+  const packs = [
+    { count: 3, price: 100, type: 'pack_3' as PaymentType, popular: false },
+    { count: 5, price: 150, type: 'pack_5' as PaymentType, popular: true },
+    { count: 10, price: 200, type: 'pack_10' as PaymentType, popular: false },
+  ];
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
       {/* Заголовок */}
@@ -108,7 +121,7 @@ export function PricingPage() {
       </div>
 
       {/* Карточки тарифов */}
-      <div className="grid md:grid-cols-3 gap-6 mb-12">
+      <div className="grid md:grid-cols-3 gap-6 mb-16">
         {plans.map((plan) => (
           <Card
             key={plan.name}
@@ -155,7 +168,7 @@ export function PricingPage() {
               <Button
                 variant="primary"
                 className="w-full"
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => handleOpenPayment(billingPeriod === 'monthly' ? 'premium_monthly' : 'premium_yearly')}
               >
                 {plan.cta}
               </Button>
@@ -178,6 +191,86 @@ export function PricingPage() {
         ))}
       </div>
 
+      {/* Разовые пакеты */}
+      <div className="mb-16">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 border border-purple-100 rounded-full mb-4">
+            <Package className="w-4 h-4 text-purple-600" />
+            <span className="text-sm font-medium text-purple-700">Разовые пакеты</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Купите генерации поштучно
+          </h2>
+          <p className="text-gray-600">
+            Идеально для разовых задач. Без подписки, без обязательств.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-3 gap-6">
+          {packs.map((pack) => (
+            <Card
+              key={pack.count}
+              className={`p-6 relative ${
+                pack.popular ? 'ring-2 ring-purple-600 shadow-lg' : ''
+              }`}
+            >
+              {pack.popular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-medium rounded-full">
+                    <Zap className="w-3 h-3" />
+                    Выгодно
+                  </span>
+                </div>
+              )}
+
+              <div className="text-center mb-4">
+                <div className="text-4xl font-bold text-gray-900 mb-1">{pack.count}</div>
+                <div className="text-sm text-gray-500">генераций</div>
+              </div>
+
+              <div className="text-center mb-6">
+                <span className="text-3xl font-bold text-gray-900">{pack.price} ₽</span>
+                <div className="text-xs text-gray-500 mt-1">
+                  {Math.round(pack.price / pack.count)} ₽ за генерацию
+                </div>
+              </div>
+
+              <ul className="space-y-2 mb-6 text-sm text-gray-600">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  Без срока действия
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  Все маркетплейсы
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-green-500" />
+                  Мгновенная активация
+                </li>
+              </ul>
+
+              <Button
+                variant={pack.popular ? 'primary' : 'secondary'}
+                className="w-full"
+                disabled={!user}
+                onClick={() => handleOpenPayment(pack.type)}
+              >
+                {user ? 'Купить' : 'Сначала войдите'}
+              </Button>
+            </Card>
+          ))}
+        </div>
+
+        {!user && (
+          <div className="text-center mt-6">
+            <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
+              Зарегистрируйтесь для покупки пакетов →
+            </Link>
+          </div>
+        )}
+      </div>
+
       {/* Сравнение тарифов */}
       <div className="bg-white rounded-2xl p-6 border border-gray-100 mb-12">
         <h2 className="text-xl font-bold text-gray-900 text-center mb-6">
@@ -190,6 +283,7 @@ export function PricingPage() {
                 <th className="text-left py-3 pr-4 font-medium text-gray-600">Функция</th>
                 <th className="text-center py-3 px-4 font-medium text-gray-600">Гость</th>
                 <th className="text-center py-3 px-4 font-medium text-gray-600">Пользователь</th>
+                <th className="text-center py-3 px-4 font-medium text-purple-600">Пакеты</th>
                 <th className="text-center py-3 pl-4 font-medium text-indigo-600">Премиум</th>
               </tr>
             </thead>
@@ -198,10 +292,12 @@ export function PricingPage() {
                 <td className="py-3 pr-4 text-gray-700">Генерации</td>
                 <td className="py-3 px-4 text-center text-gray-600">3 всего</td>
                 <td className="py-3 px-4 text-center text-gray-600">3/день</td>
+                <td className="py-3 px-4 text-center text-purple-600">3/5/10</td>
                 <td className="py-3 pl-4 text-center font-medium text-indigo-600">∞</td>
               </tr>
               <tr className="border-b border-gray-100">
                 <td className="py-3 pr-4 text-gray-700">Маркетплейсы</td>
+                <td className="py-3 px-4 text-center">✓</td>
                 <td className="py-3 px-4 text-center">✓</td>
                 <td className="py-3 px-4 text-center">✓</td>
                 <td className="py-3 pl-4 text-center">✓</td>
@@ -210,17 +306,20 @@ export function PricingPage() {
                 <td className="py-3 pr-4 text-gray-700">История</td>
                 <td className="py-3 px-4 text-center text-gray-400">—</td>
                 <td className="py-3 px-4 text-center">✓</td>
+                <td className="py-3 px-4 text-center">✓</td>
                 <td className="py-3 pl-4 text-center">✓</td>
               </tr>
               <tr className="border-b border-gray-100">
                 <td className="py-3 pr-4 text-gray-700">Избранное</td>
                 <td className="py-3 px-4 text-center text-gray-400">—</td>
                 <td className="py-3 px-4 text-center">✓</td>
+                <td className="py-3 px-4 text-center">✓</td>
                 <td className="py-3 pl-4 text-center">✓</td>
               </tr>
               <tr>
                 <td className="py-3 pr-4 text-gray-700">Поддержка</td>
                 <td className="py-3 px-4 text-center text-gray-400">—</td>
+                <td className="py-3 px-4 text-center text-gray-600">Базовая</td>
                 <td className="py-3 px-4 text-center text-gray-600">Базовая</td>
                 <td className="py-3 pl-4 text-center font-medium text-indigo-600">Приоритетная</td>
               </tr>
@@ -246,11 +345,11 @@ export function PricingPage() {
           </div>
           <div className="bg-white rounded-xl p-5 border border-gray-100">
             <h3 className="font-medium text-gray-900 mb-1 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-indigo-600" />
-              Сколько генераций доступно пользователю?
+              <Package className="w-4 h-4 text-purple-600" />
+              Как работают разовые пакеты?
             </h3>
             <p className="text-sm text-gray-600">
-              Зарегистрированные пользователи получают 3 генерации в день. Лимит обновляется каждые сутки в 00:00.
+              Купленные генерации добавляются к вашему балансу и не имеют срока действия. Они используются после исчерпания ежедневного лимита (3 генерации/день).
             </p>
           </div>
           <div className="bg-white rounded-xl p-5 border border-gray-100">
@@ -274,7 +373,11 @@ export function PricingPage() {
         </div>
       </div>
 
-      <PaymentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <PaymentModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        paymentType={selectedPayment}
+      />
     </div>
   );
 }

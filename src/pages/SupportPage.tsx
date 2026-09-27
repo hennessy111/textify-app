@@ -129,7 +129,7 @@ export function SupportPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">Email</p>
-                  <p className="text-sm text-gray-600">support@seo-generator.ru</p>
+                  <p className="text-sm text-gray-600">onyx.teammm@gmail.com</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -138,7 +138,7 @@ export function SupportPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-900">Telegram</p>
-                  <p className="text-sm text-gray-600">@seo_generator_support</p>
+                  <p className="text-sm text-gray-600">@onyxxxteammm</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">

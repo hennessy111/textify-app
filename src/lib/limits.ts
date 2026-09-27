@@ -4,7 +4,7 @@ import { isToday } from './utils';
 import type { Generation } from '../types';
 
 const GUEST_LIMIT = 3; // Разовые генерации для гостей
-const AUTH_LIMIT = 3; // Ежедневные генерации для авторизованных
+export const AUTH_LIMIT = 3; // Ежедневные генерации для авторизованных
 
 /** Получить количество генераций за сегодня */
 export function getTodayCount(generations: Generation[], userId: string | null, ip: string): number {
@@ -25,14 +25,16 @@ export function getRemaining(
   generations: Generation[],
   userId: string | null,
   ip: string,
-  isPremium: boolean
+  isPremium: boolean,
+  balance: number = 0
 ): number {
   if (isPremium) return Infinity;
   
   if (userId) {
-    // Авторизованный пользователь: 3 ежедневные генерации
+    // Авторизованный пользователь: 3 ежедневные генерации + баланс
     const count = getTodayCount(generations, userId, ip);
-    return Math.max(0, AUTH_LIMIT - count);
+    const dailyRemaining = Math.max(0, AUTH_LIMIT - count);
+    return dailyRemaining + balance;
   } else {
     // Гость: 3 разовые генерации
     const count = getTotalGuestCount(generations, ip);
@@ -45,7 +47,8 @@ export function canGenerate(
   generations: Generation[],
   userId: string | null,
   ip: string,
-  isPremium: boolean
+  isPremium: boolean,
+  balance: number = 0
 ): boolean {
-  return getRemaining(generations, userId, ip, isPremium) > 0;
+  return getRemaining(generations, userId, ip, isPremium, balance) > 0;
 }

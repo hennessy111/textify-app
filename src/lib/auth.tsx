@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile>({ id: '', is_premium: false, created_at: '' });
+  const [profile, setProfile] = useState<Profile>({ id: '', is_premium: false, balance: 0, created_at: '' });
   const [remaining, setRemaining] = useState<number>(3);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,7 +27,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const me = await api.getMe();
       setUser(me.user);
-      setProfile({ id: me.user?.id || '', is_premium: me.profile.is_premium, created_at: '' });
+      setProfile({
+        id: me.user?.id || '',
+        is_premium: me.profile.is_premium,
+        balance: me.profile.balance || 0,
+        created_at: ''
+      });
       setRemaining(me.remaining);
     } catch {
       // Игнорируем ошибки при обновлении
@@ -60,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     await api.logout();
     setUser(null);
-    setProfile({ id: '', is_premium: false, created_at: '' });
+    setProfile({ id: '', is_premium: false, balance: 0, created_at: '' });
     setRemaining(3);
   };
 
