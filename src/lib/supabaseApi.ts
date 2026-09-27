@@ -80,7 +80,7 @@ export async function getCurrentUser(): Promise<User | null> {
 }
 
 export async function getCurrentProfile(): Promise<Profile | null> {
-  const user = getCurrentUser();
+  const user = await getCurrentUser();
   if (!user) return null;
 
   const { data, error } = await supabase
@@ -168,7 +168,7 @@ export async function getHistory(
   page: number = 1,
   platform?: Platform
 ): Promise<{ data: Generation[]; total: number }> {
-  const user = getCurrentUser();
+  const user = await getCurrentUser();
   if (!user) return { data: [], total: 0 };
 
   let query = supabase
@@ -202,7 +202,7 @@ export async function getHistory(
 // ============================================
 
 export async function addFavorite(generationId: string, descriptionIndex: number): Promise<Favorite> {
-  const user = getCurrentUser();
+  const user = await getCurrentUser();
   if (!user) throw new Error('Необходима авторизация');
 
   const { data, error } = await supabase
@@ -236,7 +236,7 @@ export async function removeFavorite(id: string): Promise<void> {
 }
 
 export async function getFavorites(): Promise<(Favorite & { generation?: Generation })[]> {
-  const user = getCurrentUser();
+  const user = await getCurrentUser();
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -280,7 +280,7 @@ export async function deleteGeneration(id: string): Promise<void> {
 export type PaymentType = 'premium_monthly' | 'premium_yearly' | 'pack_3' | 'pack_5' | 'pack_10';
 
 export async function processPayment(yookassaPaymentId: string, paymentType: PaymentType): Promise<void> {
-  const user = getCurrentUser();
+  const user = await getCurrentUser();
   if (!user) throw new Error('Необходима авторизация');
 
   // Сохраняем платёж
@@ -325,7 +325,7 @@ function getPaymentAmount(paymentType: PaymentType): number {
 // ============================================
 
 export async function getMe(): Promise<{ user: User | null; profile: { is_premium: boolean; balance: number }; remaining: number }> {
-  const user = getCurrentUser();
+  const user = await getCurrentUser();
   if (!user) {
     return {
       user: null,
