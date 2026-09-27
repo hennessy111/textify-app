@@ -7,7 +7,8 @@ import { Button } from '../components/ui/Button';
 import { PaymentModal } from '../components/PaymentModal';
 import { useAuth } from '../lib/auth';
 import { Link } from 'react-router-dom';
-import type { PaymentType } from '../lib/mockApi';
+import { PRICING } from '../lib/paymentConfig';
+import type { PaymentType } from '../lib/paymentConfig';
 
 export function PricingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,9 +76,9 @@ export function PricingPage() {
   ];
 
   const packs = [
-    { count: 3, price: 100, type: 'pack_3' as PaymentType, popular: false },
-    { count: 5, price: 150, type: 'pack_5' as PaymentType, popular: true },
-    { count: 10, price: 200, type: 'pack_10' as PaymentType, popular: false },
+    { count: 3, price: PRICING.pack_3.amount, type: 'pack_3' as PaymentType, popular: false },
+    { count: 5, price: PRICING.pack_5.amount, type: 'pack_5' as PaymentType, popular: true },
+    { count: 10, price: PRICING.pack_10.amount, type: 'pack_10' as PaymentType, popular: false },
   ];
 
   return (

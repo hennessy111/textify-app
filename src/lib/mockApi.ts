@@ -282,21 +282,7 @@ export async function deleteGeneration(id: string): Promise<void> {
 
 // === PAYMENT ===
 
-export type PaymentType = 'premium_monthly' | 'premium_yearly' | 'pack_3' | 'pack_5' | 'pack_10';
-
-export interface PaymentInfo {
-  type: PaymentType;
-  amount: number;
-  label: string;
-}
-
-export const PAYMENT_OPTIONS: Record<PaymentType, PaymentInfo> = {
-  premium_monthly: { type: 'premium_monthly', amount: 200, label: 'Премиум на 1 месяц' },
-  premium_yearly: { type: 'premium_yearly', amount: 1500, label: 'Премиум на 1 год' },
-  pack_3: { type: 'pack_3', amount: 100, label: 'Пакет 3 генерации' },
-  pack_5: { type: 'pack_5', amount: 150, label: 'Пакет 5 генераций' },
-  pack_10: { type: 'pack_10', amount: 200, label: 'Пакет 10 генераций' },
-};
+import type { PaymentType } from './paymentConfig';
 
 export async function processPayment(email: string, paymentType: PaymentType): Promise<void> {
   await delay(2000);

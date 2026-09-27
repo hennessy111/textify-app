@@ -14,6 +14,7 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { GenerationPage } from './pages/GenerationPage';
 import { SupportPage } from './pages/SupportPage';
+import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/g/:id" element={<GenerationPage />} />
                 <Route path="/support" element={<SupportPage />} />
+                <Route path="/payment/success" element={<PaymentSuccessPage />} />
               </Routes>
             </main>
             {/* Footer */}
